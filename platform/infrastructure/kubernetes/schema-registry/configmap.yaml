@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: schema-registry-config
+  namespace: fedramp-data-mesh
+data:
+  kafka.bootstrap.servers: "${KAFKA_BOOTSTRAP_SERVERS}"
+  schema.registry.replication.factor: "3"
+  schema.registry.master.eligibility: "true"
+  schema.compatibility.level: "BACKWARD"
+  schema.validate: "true"
+  schema.version.purge.enabled: "true"
+  schema.version.purge.threshold: "100"
+  schema.cache.capacity: "1000"
+  schema.provider.class: "io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig"

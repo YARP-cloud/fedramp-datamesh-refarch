@@ -1,0 +1,50 @@
+kind: DataProduct
+apiVersion: datamesh.frocore.io/v1
+metadata:
+  name: project_state_events
+  domain: project_management
+  owner: project-management-team@frocore.io
+  description: State events for project entities
+  documentation: |
+    This data product captures the state of each project after changes.
+    It is the source of truth for project information.
+spec:
+  schemaRef:
+    type: avro
+    path: /domains/project-management/schemas/project_state_event.avsc
+  eventStream:
+    topicName: projects.project_state_events
+    partitionKey: project_id
+    retention: 
+      time: 30d
+    replication: 3
+  tables:
+    - name: project_state_history
+      catalog: project_management
+      format: iceberg
+      location: s3://fedramp-data-mesh-lake/project_management/project_state_history
+      partitioning:
+        - name: event_date
+          transform: "day(event_timestamp)"
+    - name: project_state_latest
+      catalog: project_management
+      format: iceberg
+      location: s3://fedramp-data-mesh-lake/project_management/project_state_latest
+      retention:
+        snapshots: 5
+  sla:
+    latency: 1m
+    availability: 99.9%
+  securityClassification: CONTROLLED_UNCLASSIFIED
+  lineage:
+    upstream:
+      - source: projects-db.public.projects
+        type: database-table
+  access:
+    roles:
+      - name: project_admin
+        permissions: [read, write]
+      - name: project_analyst
+        permissions: [read]
+      - name: data_engineer
+        permissions: [read]

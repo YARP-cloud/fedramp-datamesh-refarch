@@ -1,0 +1,178 @@
+{
+  "type": "record",
+  "name": "ProjectStateEvent",
+  "namespace": "com.frocore.projectmanagement.events",
+  "doc": "Represents the current state of a project after a change",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Unique identifier for this event"
+    },
+    {
+      "name": "event_timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Timestamp when this event was created"
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "ProjectEventType",
+        "symbols": ["CREATED", "UPDATED", "DELETED"]
+      },
+      "doc": "Type of event that occurred"
+    },
+    {
+      "name": "project_id",
+      "type": "string",
+      "doc": "Unique identifier for the project"
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "doc": "Project name"
+    },
+    {
+      "name": "description",
+      "type": ["string", "null"],
+      "doc": "Project description"
+    },
+    {
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "ProjectStatus",
+        "symbols": ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED"]
+      },
+      "doc": "Current status of the project"
+    },
+    {
+      "name": "start_date",
+      "type": ["null", {
+        "type": "int",
+        "logicalType": "date"
+      }],
+      "doc": "Planned project start date"
+    },
+    {
+      "name": "end_date",
+      "type": ["null", {
+        "type": "int",
+        "logicalType": "date"
+      }],
+      "doc": "Planned project end date"
+    },
+    {
+      "name": "owner_id",
+      "type": "string",
+      "doc": "ID of the project owner"
+    },
+    {
+      "name": "budget",
+      "type": ["null", {
+        "type": "record",
+        "name": "Budget",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "double",
+            "doc": "Budget amount"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "doc": "Currency code (e.g., USD)"
+          }
+        ]
+      }],
+      "doc": "Project budget information"
+    },
+    {
+      "name": "location",
+      "type": ["null", {
+        "type": "record",
+        "name": "Location",
+        "fields": [
+          {
+            "name": "address",
+            "type": ["string", "null"],
+            "doc": "Physical address"
+          },
+          {
+            "name": "city",
+            "type": ["string", "null"],
+            "doc": "City"
+          },
+          {
+            "name": "state",
+            "type": ["string", "null"],
+            "doc": "State or province"
+          },
+          {
+            "name": "country",
+            "type": ["string", "null"],
+            "doc": "Country"
+          },
+          {
+            "name": "zip_code",
+            "type": ["string", "null"],
+            "doc": "Zip or postal code"
+          }
+        ]
+      }],
+      "doc": "Project location information"
+    },
+    {
+      "name": "tags",
+      "type": {
+        "type": "array",
+        "items": "string"
+      },
+      "default": [],
+      "doc": "Tags associated with the project"
+    },
+    {
+      "name": "created_at",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Timestamp when the project was initially created"
+    },
+    {
+      "name": "modified_at",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Timestamp when the project was last modified"
+    },
+    {
+      "name": "source_system",
+      "type": "string",
+      "doc": "Identifier of the system that generated this event"
+    },
+    {
+      "name": "security_classification",
+      "type": {
+        "type": "enum",
+        "name": "SecurityClassification",
+        "symbols": ["UNCLASSIFIED", "CONTROLLED_UNCLASSIFIED", "CONFIDENTIAL"]
+      },
+      "default": "UNCLASSIFIED",
+      "doc": "Security classification of this project data"
+    },
+    {
+      "name": "metadata",
+      "type": ["null", {
+        "type": "map",
+        "values": "string"
+      }],
+      "doc": "Additional metadata as key-value pairs"
+    }
+  ]
+}
