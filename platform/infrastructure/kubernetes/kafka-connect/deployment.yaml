@@ -1,0 +1,196 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-connect
+  namespace: fedramp-data-mesh
+  labels:
+    app: kafka-connect
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kafka-connect
+  template:
+    metadata:
+      labels:
+        app: kafka-connect
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8083"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: kafka-connect
+        image: confluentinc/cp-kafka-connect:7.4.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8083
+          name: http
+          protocol: TCP
+        env:
+        - name: CONNECT_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: kafka-connect-config
+              key: kafka.bootstrap.servers
+        - name: CONNECT_GROUP_ID
+          value: "fedramp-data-mesh-connect-cluster"
+        - name: CONNECT_CONFIG_STORAGE_TOPIC
+          value: "fedramp-data-mesh-connect-configs"
+        - name: CONNECT_OFFSET_STORAGE_TOPIC
+          value: "fedramp-data-mesh-connect-offsets"
+        - name: CONNECT_STATUS_STORAGE_TOPIC
+          value: "fedramp-data-mesh-connect-status"
+        - name: CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR
+          value: "3"
+        - name: CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR
+          value: "3"
+        - name: CONNECT_STATUS_STORAGE_REPLICATION_FACTOR
+          value: "3"
+        - name: CONNECT_KEY_CONVERTER
+          value: "io.confluent.connect.avro.AvroConverter"
+        - name: CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL
+          valueFrom:
+            configMapKeyRef:
+              name: kafka-connect-config
+              key: schema.registry.url
+        - name: CONNECT_VALUE_CONVERTER
+          value: "io.confluent.connect.avro.AvroConverter"
+        - name: CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL
+          valueFrom:
+            configMapKeyRef:
+              name: kafka-connect-config
+              key: schema.registry.url
+        - name: CONNECT_INTERNAL_KEY_CONVERTER
+          value: "org.apache.kafka.connect.json.JsonConverter"
+        - name: CONNECT_INTERNAL_VALUE_CONVERTER
+          value: "org.apache.kafka.connect.json.JsonConverter"
+        - name: CONNECT_REST_ADVERTISED_HOST_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CONNECT_PLUGIN_PATH
+          value: "/usr/share/java,/usr/share/confluent-hub-components"
+        - name: CONNECT_SECURITY_PROTOCOL
+          value: "SSL"
+        - name: CONNECT_SSL_TRUSTSTORE_LOCATION
+          value: "/etc/kafka/secrets/kafka.truststore.jks"
+        - name: CONNECT_SSL_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: truststore.password
+        - name: CONNECT_SSL_KEYSTORE_LOCATION
+          value: "/etc/kafka/secrets/kafka.keystore.jks"
+        - name: CONNECT_SSL_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: keystore.password
+        - name: CONNECT_SSL_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: key.password
+        - name: CONNECT_CONSUMER_SECURITY_PROTOCOL
+          value: "SSL"
+        - name: CONNECT_CONSUMER_SSL_TRUSTSTORE_LOCATION
+          value: "/etc/kafka/secrets/kafka.truststore.jks"
+        - name: CONNECT_CONSUMER_SSL_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: truststore.password
+        - name: CONNECT_CONSUMER_SSL_KEYSTORE_LOCATION
+          value: "/etc/kafka/secrets/kafka.keystore.jks"
+        - name: CONNECT_CONSUMER_SSL_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: keystore.password
+        - name: CONNECT_CONSUMER_SSL_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: key.password
+        - name: CONNECT_PRODUCER_SECURITY_PROTOCOL
+          value: "SSL"
+        - name: CONNECT_PRODUCER_SSL_TRUSTSTORE_LOCATION
+          value: "/etc/kafka/secrets/kafka.truststore.jks"
+        - name: CONNECT_PRODUCER_SSL_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: truststore.password
+        - name: CONNECT_PRODUCER_SSL_KEYSTORE_LOCATION
+          value: "/etc/kafka/secrets/kafka.keystore.jks"
+        - name: CONNECT_PRODUCER_SSL_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: keystore.password
+        - name: CONNECT_PRODUCER_SSL_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: key.password
+        volumeMounts:
+        - name: kafka-certificates
+          mountPath: "/etc/kafka/secrets"
+          readOnly: true
+        - name: connect-plugins
+          mountPath: "/usr/share/confluent-hub-components"
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /connectors
+            port: http
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /connectors
+            port: http
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
+      initContainers:
+      - name: init-connector-plugins
+        image: confluentinc/cp-kafka-connect:7.4.0
+        command:
+        - sh
+        - -c
+        - |
+          confluent-hub install --no-prompt debezium/debezium-connector-postgresql:2.3.0
+          confluent-hub install --no-prompt confluentinc/kafka-connect-s3:10.4.0
+          confluent-hub install --no-prompt confluentinc/connect-transforms:latest
+        volumeMounts:
+        - name: connect-plugins
+          mountPath: "/usr/share/confluent-hub-components"
+      volumes:
+      - name: kafka-certificates
+        secret:
+          secretName: kafka-certificates
+      - name: connect-plugins
+        emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - kafka-connect
+              topologyKey: "kubernetes.io/hostname"

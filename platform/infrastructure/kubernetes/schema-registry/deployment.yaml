@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schema-registry
+  namespace: fedramp-data-mesh
+  labels:
+    app: schema-registry
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: schema-registry
+  template:
+    metadata:
+      labels:
+        app: schema-registry
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: schema-registry
+        image: confluentinc/cp-schema-registry:7.4.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+          name: http
+          protocol: TCP
+        env:
+        - name: SCHEMA_REGISTRY_HOST_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: schema-registry-config
+              key: kafka.bootstrap.servers
+        - name: SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL
+          value: "SSL"
+        - name: SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_LOCATION
+          value: "/etc/kafka/secrets/kafka.truststore.jks"
+        - name: SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: truststore.password
+        - name: SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_LOCATION
+          value: "/etc/kafka/secrets/kafka.keystore.jks"
+        - name: SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: keystore.password
+        - name: SCHEMA_REGISTRY_KAFKASTORE_SSL_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kafka-credentials
+              key: key.password
+        - name: SCHEMA_REGISTRY_KAFKASTORE_TOPIC
+          value: "_schemas"
+        - name: SCHEMA_REGISTRY_DEBUG
+          value: "true"
+        - name: SCHEMA_REGISTRY_LISTENERS
+          value: "https://0.0.0.0:8081"
+        - name: SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION
+          value: "/etc/schema-registry/secrets/schema-registry.truststore.jks"
+        - name: SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: schema-registry-credentials
+              key: truststore.password
+        - name: SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION
+          value: "/etc/schema-registry/secrets/schema-registry.keystore.jks"
+        - name: SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: schema-registry-credentials
+              key: keystore.password
+        - name: SCHEMA_REGISTRY_SSL_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: schema-registry-credentials
+              key: key.password
+        - name: SCHEMA_REGISTRY_CLIENT_AUTHENTICATION
+          value: "REQUESTED"
+        volumeMounts:
+        - name: kafka-certificates
+          mountPath: "/etc/kafka/secrets"
+          readOnly: true
+        - name: schema-registry-certificates
+          mountPath: "/etc/schema-registry/secrets"
+          readOnly: true
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+          requests:
+            cpu: "200m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTPS
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTPS
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
+      volumes:
+      - name: kafka-certificates
+        secret:
+          secretName: kafka-certificates
+      - name: schema-registry-certificates
+        secret:
+          secretName: schema-registry-certificates
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - schema-registry
+              topologyKey: "kubernetes.io/hostname"

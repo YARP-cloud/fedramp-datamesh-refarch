@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fedramp-data-mesh
+  labels:
+    name: fedramp-data-mesh
+    environment: ${ENVIRONMENT}
+    compliance: fedramp-high

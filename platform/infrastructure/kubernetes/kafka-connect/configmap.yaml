@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-connect-config
+  namespace: fedramp-data-mesh
+data:
+  kafka.bootstrap.servers: "${KAFKA_BOOTSTRAP_SERVERS}"
+  schema.registry.url: "https://schema-registry:8081"
+  producer.interceptor.classes: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+  consumer.interceptor.classes: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+  topic.creation.default.replication.factor: "3"
+  topic.creation.default.partitions: "3"
