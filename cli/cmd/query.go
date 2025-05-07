@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/frocore/fedramp-data-mesh/cli/internal/catalog"
 	"github.com/frocore/fedramp-data-mesh/cli/internal/config"
@@ -74,7 +72,8 @@ func launchQueryUI(dataProduct string, cfg *config.Config, secCtx *security.Secu
 	
 	// Start the UI
 	p := tea.NewProgram(model, tea.WithAltScreen())
-	return p.Start()
+	_, err := p.Run()
+	return err
 }
 
 func resolveDataProductPath(dataProduct string, cfg *config.Config, secCtx *security.SecurityContext, log *logging.Logger) (string, error) {
