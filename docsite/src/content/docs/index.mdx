@@ -1,0 +1,32 @@
+---
+title: FedRAMP High Event-Driven Data Mesh
+description: An overview of the FedRAMP High Event-Driven Data Mesh architecture.
+template: splash
+hero:
+  tagline: An overview of the FedRAMP High Event-Driven Data Mesh architecture.
+  image:
+    file: /src/assets/architecture-overview.svg
+  actions:
+    - text: Guide 
+      link: /architecture/overview/
+      icon: right-arrow
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Key Components
+
+<CardGrid stagger>
+	<Card title="Architecture Overview" icon="open-book">
+		Explore the decentralized, domain-driven architecture designed for FedRAMP High compliance with event-driven communication.
+	</Card>
+	<Card title="Security & Compliance" icon="shield">
+		Learn how the architecture meets FedRAMP High security requirements with comprehensive controls and processes.
+	</Card>
+	<Card title="Developer Guide" icon="laptop">
+		Access tools and APIs for interacting with the data mesh, including the Go-based CLI and documentation.
+	</Card>
+	<Card title="Deployment" icon="rocket">
+		Follow step-by-step instructions for deploying and managing the infrastructure on AWS GovCloud.
+	</Card>
+</CardGrid>
