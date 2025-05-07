@@ -6,7 +6,7 @@ A FedRAMP Medium ==> High compliance, event-driven data mesh foundational archit
 
 This repository contains the implementation of a decentralized, scalable, and secure data infrastructure that supports both batch (Spark) and real-time streaming (Kafka/Flink) workloads. It is designed to meet rigorous FedRAMP High compliance requirements while enabling domain-driven data ownership and real-time data sharing.
 
-DocSite: ![https://yarp-cloud.github.io/fedramp-datamesh-refarch/](https://yarp-cloud.github.io/fedramp-datamesh-refarch/)
+DocSite: [https://yarp-cloud.github.io/fedramp-datamesh-refarch/](https://yarp-cloud.github.io/fedramp-datamesh-refarch/)
 
 ## Core Features
 
