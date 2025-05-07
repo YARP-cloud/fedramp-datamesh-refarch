@@ -1,6 +1,6 @@
 # FedRAMP High Event-Driven Data Mesh
 
-A FedRAMP High compliant, event-driven data mesh architecture for Construction Management Software serving U.S. Federal and State Government contracts.
+A FedRAMP Medium ==> High compliance, event-driven data mesh foundational architecture for a mock Construction Management Software serving U.S. Federal and State Government contracts.
 
 ## Overview
 
