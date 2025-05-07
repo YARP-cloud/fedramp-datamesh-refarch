@@ -7,7 +7,7 @@ export default defineConfig({
 	// Set the base path for GitHub Pages deployment
 	// Use '/fedramp-datamesh-refarch/' for project pages
 	// Remove this line if you're deploying to a custom domain or using organization pages
-	base: '/fedramp-datamesh-refarch',
+	base: '/fedramp-datamesh-refarch/',
 
 	integrations: [
 		starlight({

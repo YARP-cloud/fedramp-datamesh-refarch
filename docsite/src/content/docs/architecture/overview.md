@@ -9,7 +9,7 @@ This document provides a high-level overview of the FedRAMP High Event-Driven Da
 
 The FedRAMP High Event-Driven Data Mesh is a decentralized, domain-driven architecture for managing data in a secure and scalable way, compliant with FedRAMP High security requirements. It combines the principles of Data Mesh (domain ownership, data as a product, self-service platform, federated governance) with Event-Driven Architecture (events as the primary communication mechanism).
 
-![Architecture Overview](/fedramp-datamesh-refarch/src/assets/architecture-overview.svg)
+![Architecture Overview](../../../assets/architecture-overview.svg)
 
 ## Key Components
 
