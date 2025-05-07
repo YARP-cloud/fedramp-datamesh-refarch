@@ -9,7 +9,7 @@ This document provides a high-level overview of the FedRAMP High Event-Driven Da
 
 The FedRAMP High Event-Driven Data Mesh is a decentralized, domain-driven architecture for managing data in a secure and scalable way, compliant with FedRAMP High security requirements. It combines the principles of Data Mesh (domain ownership, data as a product, self-service platform, federated governance) with Event-Driven Architecture (events as the primary communication mechanism).
 
-![Architecture Overview](/src/assets/architecture-overview.svg)
+![Architecture Overview](/fedramp-datamesh-refarch/src/assets/architecture-overview.svg)
 
 ## Key Components
 
@@ -83,7 +83,6 @@ The architecture is deployed on AWS, utilizing:
 
 For more detailed information, refer to the following documentation:
 
-- [Security and Compliance Guide](../security/fedramp-compliance.md)
-- [Developer Guide](../developers/getting-started.md)
-- [Operations Guide](../operations/deployment.md)
-- [Data Product Development Guide](../data-products/creating-data-products.md)
+- [Security and Compliance Guide](/fedramp-datamesh-refarch/security/fedramp-compliance/)
+- [Developer Guide](/fedramp-datamesh-refarch/developers/getting-started/)
+- [Deployment Guide](/fedramp-datamesh-refarch/developers/deployment/)
